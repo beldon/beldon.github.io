@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="主要使用的库是xdocreport参考链接 link">
+<meta property="og:type" content="article">
+<meta property="og:title" content="word文档转pdf">
+<meta property="og:url" content="http://blog.beldon.me/word-to-pdf.html">
+<meta property="og:site_name" content="Beldon">
+<meta property="og:description" content="主要使用的库是xdocreport参考链接 link">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-11-19T10:30:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="word文档转pdf">
+<meta name="twitter:description" content="主要使用的库是xdocreport参考链接 link">
+
+
+
+
+
+
+  <link rel="canonical" href="http://blog.beldon.me/word-to-pdf.html"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>word文档转pdf | Beldon</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Beldon</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个博客</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.beldon.me/word-to-pdf.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Beldon">
+      <meta itemprop="description" content="一个博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Beldon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">word文档转pdf
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-09-14 00:23:45" itemprop="dateCreated datePublished" datetime="2017-09-14T00:23:45+08:00">2017-09-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-11-19 18:30:34" itemprop="dateModified" datetime="2017-11-19T18:30:34+08:00">2017-11-19</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="主要使用的库是xdocreport"><a href="#主要使用的库是xdocreport" class="headerlink" title="主要使用的库是xdocreport"></a>主要使用的库是<code>xdocreport</code></h3><p>参考链接 <a href="http://blog.csdn.net/tototuzuoquan/article/details/71273986" target="_blank" rel="noopener">link</a></p>
+<a id="more"></a>
+<h3 id="maven-依赖"><a href="#maven-依赖" class="headerlink" title="maven 依赖"></a>maven 依赖</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;properties&gt;</span><br><span class="line">      &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;</span><br><span class="line">      &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;</span><br><span class="line">      &lt;java.version&gt;1.8&lt;/java.version&gt;</span><br><span class="line">      &lt;xdocreport.version&gt;1.0.5&lt;/xdocreport.version&gt;</span><br><span class="line">  &lt;/properties&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;fr.opensagres.xdocreport&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;fr.opensagres.xdocreport.converter.docx.xwpf&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;xdocreport.version&#125;&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;fr.opensagres.xdocreport&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;fr.opensagres.xdocreport.template.velocity&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;xdocreport.version&#125;&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;fr.opensagres.xdocreport&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;fr.opensagres.xdocreport.document.docx&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;xdocreport.version&#125;&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;fr.opensagres.xdocreport&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;fr.opensagres.xdocreport.itext.extension&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;xdocreport.version&#125;&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>demo代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">public class PDFUtils &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 1) Load Docx file by filling Velocity template engine and cache</span><br><span class="line">            // it to the registry</span><br><span class="line">            InputStream in = new FileInputStream(new File(&quot;D:\\work\\pdf\\DocxProjectWithVelocity.docx&quot;));</span><br><span class="line">            IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);</span><br><span class="line"></span><br><span class="line">            // 2) Create context Java model</span><br><span class="line">            IContext context = report.createContext();</span><br><span class="line">            Project project = new Project(&quot;XDocReport&quot;);</span><br><span class="line">            context.put(&quot;project&quot;, project);</span><br><span class="line"></span><br><span class="line">            // 3) Generate report by merging Java model with the Docx</span><br><span class="line">            OutputStream out = new FileOutputStream(new File(</span><br><span class="line">                    &quot;DocxProjectWithVelocity_Out.pdf&quot;));</span><br><span class="line">            // report.process(context, out);</span><br><span class="line">            Options options = Options.getTo(ConverterTypeTo.PDF).via(</span><br><span class="line">                    ConverterTypeVia.XWPF);</span><br><span class="line">            report.convert(context, options, out);</span><br><span class="line">            System.out.println(&quot;finish&quot;);</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (XDocReportException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>完整代码，包括解决中文显示问题<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line">package com.foxconn.fuyhui.util.pdf;</span><br><span class="line"></span><br><span class="line">import com.lowagie.text.DocumentException;</span><br><span class="line">import com.lowagie.text.Font;</span><br><span class="line">import com.lowagie.text.FontFactory;</span><br><span class="line">import com.lowagie.text.pdf.BaseFont;</span><br><span class="line">import fr.opensagres.xdocreport.converter.ConverterTypeTo;</span><br><span class="line">import fr.opensagres.xdocreport.converter.ConverterTypeVia;</span><br><span class="line">import fr.opensagres.xdocreport.converter.Options;</span><br><span class="line">import fr.opensagres.xdocreport.core.XDocReportException;</span><br><span class="line">import fr.opensagres.xdocreport.document.IXDocReport;</span><br><span class="line">import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;</span><br><span class="line">import fr.opensagres.xdocreport.itext.extension.font.ITextFontRegistry;</span><br><span class="line">import fr.opensagres.xdocreport.template.IContext;</span><br><span class="line">import fr.opensagres.xdocreport.template.TemplateEngineKind;</span><br><span class="line">import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;</span><br><span class="line">import org.apache.log4j.Logger;</span><br><span class="line">import org.apache.poi.xwpf.converter.pdf.PdfOptions;</span><br><span class="line"></span><br><span class="line">import java.io.*;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Created by Beldon.</span><br><span class="line"> * Copyright (c)  2017/7/27, All Rights Reserved.</span><br><span class="line"> * https://www.fuyhui.com/</span><br><span class="line"> */</span><br><span class="line">public abstract class PdfUtil &#123;</span><br><span class="line">    private static Logger log = Logger.getLogger(PdfUtil.class);</span><br><span class="line"></span><br><span class="line">    private static BaseFont defaultFont = null;</span><br><span class="line"></span><br><span class="line">    static &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            loadFont();</span><br><span class="line">        &#125; catch (IOException | DocumentException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //加载字体</span><br><span class="line">    private static void loadFont() throws IOException, DocumentException &#123;</span><br><span class="line">        //arialuni能够显示中文</span><br><span class="line">        defaultFont =  BaseFont.createFont(PdfUtil.class.getResource(&quot;/font/arialuni.ttf&quot;).getFile(),   BaseFont.IDENTITY_H, BaseFont.EMBEDDED);</span><br><span class="line">        String path = PdfUtil.class.getResource(&quot;/font&quot;).getFile();</span><br><span class="line">        FontFactory.registerDirectory(path); //加载字体</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * word模板解析转PDF</span><br><span class="line">     * &lt;p&gt;</span><br><span class="line">     * 主要用到 velocity 模板引擎，word里面要插入 MergeField 域，变量格式是velocity格式</span><br><span class="line">     *</span><br><span class="line">     * @param template     模板</span><br><span class="line">     * @param data         模板数据</span><br><span class="line">     * @param outputStream 输出流</span><br><span class="line">     */</span><br><span class="line">    public final static void render(File template, Map&lt;String, Object&gt; data, OutputStream outputStream) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            if (log.isDebugEnabled()) &#123;</span><br><span class="line">                log.info(&quot;Begin to render pdf&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            // 1) Load Docx file by filling Velocity template engine and cache</span><br><span class="line">            // it to the registry</span><br><span class="line">            InputStream in = new FileInputStream(template);</span><br><span class="line">            IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);</span><br><span class="line">            report.setFieldsMetadata(new FieldsMetadata());</span><br><span class="line"></span><br><span class="line">            // 2) Create context Java model</span><br><span class="line">            IContext context = report.createContext();</span><br><span class="line">            data.forEach(context::put);</span><br><span class="line">            // report.process(context, out);</span><br><span class="line">            Options options = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.XWPF);</span><br><span class="line"></span><br><span class="line">            //设置字体</span><br><span class="line">            PdfOptions pdfOptions = PdfOptions.create();</span><br><span class="line">            pdfOptions.fontProvider((familyName, encoding, size, style, color) -&gt; &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    if (FontFactory.contains(familyName)) &#123; //如果font工厂里面有font，则加载，否则使用默认字体</span><br><span class="line">                        return FontFactory.getFont(familyName,encoding,size,style,color);</span><br><span class="line">                    &#125;else&#123;</span><br><span class="line">                        return new Font(defaultFont, size, style, color);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; catch (Throwable e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                    return ITextFontRegistry.getRegistry().getFont(familyName, encoding, size, style, color);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            options.subOptions(pdfOptions);</span><br><span class="line"></span><br><span class="line">            report.convert(context, options, outputStream);</span><br><span class="line">            if (log.isDebugEnabled()) &#123;</span><br><span class="line">                log.info(&quot;Finish rendering pdf&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (IOException | XDocReportException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            log.error(&quot;Rendering pdf error&quot;, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public final static void render(String templatePath, Map&lt;String, Object&gt; data, OutputStream outputStream) &#123;</span><br><span class="line">        render(new File(templatePath), data, outputStream);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public final static void render(String templatePath, Map&lt;String, Object&gt; data, String outputFilePath) throws FileNotFoundException &#123;</span><br><span class="line">        render(new File(templatePath), data, new FileOutputStream(new File(outputFilePath)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //demo</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();</span><br><span class="line">            Map&lt;String, String&gt; name = new HashMap&lt;&gt;();</span><br><span class="line">            name.put(&quot;name&quot;, &quot;Demo我的中文&quot;);</span><br><span class="line">            data.put(&quot;project&quot;, name);</span><br><span class="line">            data.put(&quot;demoName&quot;, &quot;Demo我的中文&quot;);</span><br><span class="line">            render(&quot;D:\\work\\pdf\\template.docx&quot;, data, &quot;D:\\work\\pdf\\DocxProjectWithVelocity.pdf&quot;);</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/spring/spring-primary.html" rel="next" title="spring @Primary 注解">
+                <i class="fa fa-chevron-left"></i> spring @Primary 注解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/thread-base.html" rel="prev" title="thread-base">
+                thread-base <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Beldon</p>
+              <p class="site-description motion-element" itemprop="description">一个博客</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要使用的库是xdocreport"><span class="nav-number">1.</span> <span class="nav-text">主要使用的库是xdocreport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#maven-依赖"><span class="nav-number">2.</span> <span class="nav-text">maven 依赖</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Beldon</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

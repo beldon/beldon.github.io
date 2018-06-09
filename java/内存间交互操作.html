@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Java 内存模型中定义了以下 8 种操作来完成主内存与工作内存之间交互的实现细节：">
+<meta name="keywords" content="java,多线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存间交互操作">
+<meta property="og:url" content="http://blog.beldon.me/java/内存间交互操作.html">
+<meta property="og:site_name" content="Beldon">
+<meta property="og:description" content="Java 内存模型中定义了以下 8 种操作来完成主内存与工作内存之间交互的实现细节：">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-22T12:17:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内存间交互操作">
+<meta name="twitter:description" content="Java 内存模型中定义了以下 8 种操作来完成主内存与工作内存之间交互的实现细节：">
+
+
+
+
+
+
+  <link rel="canonical" href="http://blog.beldon.me/java/内存间交互操作.html"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>内存间交互操作 | Beldon</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Beldon</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个博客</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.beldon.me/java/内存间交互操作.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Beldon">
+      <meta itemprop="description" content="一个博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Beldon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">内存间交互操作
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-04-22 20:10:52 / 修改时间：20:17:02" itemprop="dateCreated datePublished" datetime="2017-04-22T20:10:52+08:00">2017-04-22</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="Java-内存模型中定义了以下-8-种操作来完成主内存与工作内存之间交互的实现细节："><a href="#Java-内存模型中定义了以下-8-种操作来完成主内存与工作内存之间交互的实现细节：" class="headerlink" title="Java 内存模型中定义了以下 8 种操作来完成主内存与工作内存之间交互的实现细节："></a>Java 内存模型中定义了以下 8 种操作来完成主内存与工作内存之间交互的实现细节：</h4><a id="more"></a>
+<ul>
+<li>luck（锁定）：作用于主内存的变量，它把一个变量标示为一条线程独占的状态。  </li>
+<li>unlock（解锁）：作用于主内存的变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其<br>他线程锁定。  </li>
+<li>read（读取）：作用于主内存的变量，它把一个变量的值从主内存传输到工作内存中，以便随后的 load 动<br>作使用。  </li>
+<li>load（载入）：作用于工作内存的变量，它把 read 操作从主内存中得到的变量值放入工作内存的变量副本<br>中。  </li>
+<li>use（使用）：作用于工作内存的变量，它把工作内存中的一个变量的值传递给执行引擎，每当虚拟机遇到<br>一个需要使用到变量的值得字节码指令时将会执行这个操作。  </li>
+<li>assign（赋值）：作用于工作内存的变量，它把一个从执行引擎接收到的值赋给工作内存的变量，每当虚拟<br>机遇到一个给变量赋值的字节码指令时执行这个操作。  </li>
+<li>store（存储）：作用于工作内存的变量，它把工作内存中的一个变量的值传递到主内存中，以便随后的 write 操作使用。  </li>
+<li>write（写入）：作用于主内存的变量，它把 store 操作从工作内存中得到的变量值放入主内存的变量中。</li>
+<li>​<h4 id="Java-内存模型还规定了执行上述-8-种基本操作时必须满足如下规则："><a href="#Java-内存模型还规定了执行上述-8-种基本操作时必须满足如下规则：" class="headerlink" title="Java 内存模型还规定了执行上述 8 种基本操作时必须满足如下规则："></a>Java 内存模型还规定了执行上述 8 种基本操作时必须满足如下规则：</h4></li>
+<li>不允许 read 和 load、store 和 write 操作之一单独出现，以上两个操作必须按顺序执行，但没有保证必须<br>连续执行，也就是说，read 与 load 之间、store 与 write 之间是可插入其他指令的。  </li>
+<li>不允许一个线程丢弃它的最近的 assign 操作，即变量在工作内存中改变了之后必须把该变化同步回主内<br>存。  </li>
+<li>不允许一个线程无原因地（没有发生过任何 assign 操作）把数据从线程的工作内存同步回主内存中。  </li>
+<li>一个新的变量只能从主内存中“诞生”，不允许在工作内存中直接使用一个未被初始化（load 或 assig<br>n）的变量，换句话说就是对一个变量实施 use 和 store 操作之前，必须先执行过了 assign 和 load 操作。  </li>
+<li>一个变量在同一个时刻只允许一条线程对其执行 lock 操作，但 lock 操作可以被同一个条线程重复执行多<br>次，多次执行 lock 后，只有执行相同次数的 unlock 操作，变量才会被解锁。  </li>
+<li>如果对一个变量执行 lock 操作，将会清空工作内存中此变量的值，在执行引擎使用这个变量前，需要重新执<br>行 load 或 assign 操作初始化变量的值。  </li>
+<li>如果一个变量实现没有被 lock 操作锁定，则不允许对它执行 unlock 操作，也不允许去 unlock 一个被其他<br>线程锁定的变量。  </li>
+<li>对一个变量执行 unlock 操作之前，必须先把此变量同步回主内存（执行 store 和 write 操作）。  </li>
+</ul>
+<h4 id="volatile-型变量的特殊规则"><a href="#volatile-型变量的特殊规则" class="headerlink" title="volatile 型变量的特殊规则"></a>volatile 型变量的特殊规则</h4><h5 id="Java-内存模型对-volatile-专门定义了一些特殊的访问规则，当一个变量被定义成-volatile-之后，他将具备两种特性："><a href="#Java-内存模型对-volatile-专门定义了一些特殊的访问规则，当一个变量被定义成-volatile-之后，他将具备两种特性：" class="headerlink" title="* Java 内存模型对 volatile 专门定义了一些特殊的访问规则，当一个变量被定义成 volatile 之后，他将具备两种特性："></a>* Java 内存模型对 volatile 专门定义了一些特殊的访问规则，当一个变量被定义成 volatile 之后，他将具备两种特性：</h5><ul>
+<li>保证此变量对所有线程的可见性。这里不具体解释了。需要注意，volatile 变量的写操作除了对它本身的读操<br>作可见外，volatile 写操作之前的所有共享变量均对 volatile 读操作之后的操作可见，另外注意其适用场景。  </li>
+<li>禁止指令重排序优化。普通的变量仅仅会保证在该方法的执行过程中所有依赖赋值结果的地方都能获得正确<br>的结果，而不能保证变量赋值操作的顺序与程序中的执行顺序一致，在单线程中，我们是无法感知这一点<br>的。  </li>
+<li>补充：Java 语言规范规定了 JVM 线程内部维持顺序化语义，也就是说只要程序的最终结果等同于它在严格<br>的顺序化环境下的结果，那么指令的执行顺序就可能与代码的顺序不一致，这个过程通过叫做指令的重排<br>序。指令重排序存在的意义在于：JVM 能够根据处理器的特性（CPU 的多级缓存系统、多核处理器等）适<br>当的重新排序机器指令，使机器指令更符合 CPU 的执行特点，最大限度的发挥机器的性能。在没有同步的<br>情况下，编译器、处理器以及运行时等都可能对操作的执行顺序进行一些意想不到的调整。</li>
+</ul>
+<h4 id="final-域"><a href="#final-域" class="headerlink" title="final 域"></a>final 域</h4><p>final 类型的域是不能修改的，除了这一点外，在 Java 内存模型中，final 域还有着特殊的语义，final 域能确保初<br>始化过程的安全性，从而可以不受限制地访问不可变对象，并在共享这些对象时无须同步。具体而言，就是被 final 修饰的字段在构造器中一旦被初始化完成，并且构造器没有把“this”的引用传递出去（this 引用逃逸是一件<br>很危险的事情，其他线程有可能通过这个引用访问到“初始化了一半”的对象），那么在其他线程中就能看到 final 字段的值，而且其外、外部可见状态永远也不会改变。它所带来的安全性是最简单最纯粹的。</p>
+<h4 id="long-和-double-型变量的特殊规则"><a href="#long-和-double-型变量的特殊规则" class="headerlink" title="long 和 double 型变量的特殊规则"></a>long 和 double 型变量的特殊规则</h4><p>Java 内存模型要求 lock、unlock、read、load、assign、use、store 和 write 这 8 个操作都具有原子性，但<br>是对于 64 位的数据类型 long 和 double，在模型中特别定义了一条宽松的规定：允许虚拟机将没有被 volatile<br>修饰的 64 位数据的读写操作划分为两次 32 位的操作来进行。这样，如果有多个线程共享一个未被声明为 volatil<br>e 的 long 或 double 类型的变量，并且同时对它们进行读取和修改操作，那么某些线程可能会读到一个既非原<br>值，也非其他线程修改值得代表了“半个变量”的数值。不过这种读取到“半个变量”的情况非常罕见，因为 Ja<br>va 内存模型虽然允许虚拟机不把 long 和 double 变量的读写实现成原子操作，但允许迅疾选择把这些操作实现<br>为具有原子性的操作，而且还“强烈建议”虚拟机这样实现。目前各种平台下的商用虚拟机几乎都选择把 64 位<br>数据的读写操作作为原子操作来对待，因此在编码时，不需要将 long 和 double 变量专门声明为 volatile。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+            <a href="/tags/多线程/" rel="tag"># 多线程</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/spring boot/spring boot配置文件加载顺序.html" rel="next" title="Spring boot 配置文件加载顺序">
+                <i class="fa fa-chevron-left"></i> Spring boot 配置文件加载顺序
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/gist/captureScreen.html" rel="prev" title="Java截取屏幕">
+                Java截取屏幕 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Beldon</p>
+              <p class="site-description motion-element" itemprop="description">一个博客</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Java-内存模型中定义了以下-8-种操作来完成主内存与工作内存之间交互的实现细节："><span class="nav-number">1.</span> <span class="nav-text">Java 内存模型中定义了以下 8 种操作来完成主内存与工作内存之间交互的实现细节：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java-内存模型还规定了执行上述-8-种基本操作时必须满足如下规则："><span class="nav-number">2.</span> <span class="nav-text">Java 内存模型还规定了执行上述 8 种基本操作时必须满足如下规则：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#volatile-型变量的特殊规则"><span class="nav-number">3.</span> <span class="nav-text">volatile 型变量的特殊规则</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Java-内存模型对-volatile-专门定义了一些特殊的访问规则，当一个变量被定义成-volatile-之后，他将具备两种特性："><span class="nav-number">3.1.</span> <span class="nav-text">* Java 内存模型对 volatile 专门定义了一些特殊的访问规则，当一个变量被定义成 volatile 之后，他将具备两种特性：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#final-域"><span class="nav-number">4.</span> <span class="nav-text">final 域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#long-和-double-型变量的特殊规则"><span class="nav-number">5.</span> <span class="nav-text">long 和 double 型变量的特殊规则</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Beldon</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
